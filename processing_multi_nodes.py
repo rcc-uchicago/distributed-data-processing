@@ -48,10 +48,10 @@ if __name__ == '__main__':
     
     start_time = time.time()
 
-
     #with MPIPoolExecutor() as executor:
     #    futures = [executor.submit(processing_file, f, channel_id) for f in files]
     #    results = [future.result() for future in futures]
+
 
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
@@ -60,6 +60,8 @@ if __name__ == '__main__':
     results = [processing_file(f, channel_id) for f in files_this_rank]
 
     all_results = comm.gather(results, root=0)
+    if rank == 0:
+        combined = [item for sublist in all_results for item in sublist]
 
     end_time = time.time()
     elasped_time = end_time - start_time
@@ -68,7 +70,7 @@ if __name__ == '__main__':
     if rank == 0:
         print('Elapsed time (seconds): ', total/size)
 
-    # Print results
-    for res in results:
-       print(f"Mean of channel {channel_id} in file {res[0]}: {res[1]}")
+        # Print results
+        for res in combined:
+            print(f"Mean of channel {channel_id} in file {res[0]}: {res[1]}")
 
