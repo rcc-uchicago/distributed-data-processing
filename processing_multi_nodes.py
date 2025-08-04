@@ -58,6 +58,8 @@ if __name__ == '__main__':
 
     # Gather results from all ranks into the root rank
     all_results = comm.gather(results, root=0)
+    if rank == 0:
+        combined = [item for sublist in all_results for item in sublist]
 
     # TODO: using MPIPoolExecutor to process files in parallel
     #with MPIPoolExecutor() as executor:
@@ -71,7 +73,7 @@ if __name__ == '__main__':
     if rank == 0:
         print('Elapsed time (seconds): ', total/size)
 
-    # Print results
-    for res in results:
-       print(f"Mean of channel {channel_id} in file {res[0]}: {res[1]}")
+        # Print results
+        for res in combined:
+            print(f"Mean of channel {channel_id} in file {res[0]}: {res[1]}")
 
